@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getBenefitsByMaxAge } from './helpers/benefitsGetter'
-import allBenefitsByYears from './data/allBenefitsByYears'
+import { allBenefitsByYears, allDelayedBenefitsByYears } from './data/allBenefitsByYears'
 import './App.css';
 
 const Benefits = ({ benefits, monthlyBenefit }) => {
-  const benefitsTable = getBenefitsByMaxAge(benefits.data, 745, 85, monthlyBenefit)
+  const benefitsTable = getBenefitsByMaxAge(benefits.data, 744, 85, monthlyBenefit)
 
   return (
     <div style={{ textAlign: "center" }}>

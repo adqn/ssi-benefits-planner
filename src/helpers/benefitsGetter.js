@@ -1,44 +1,47 @@
-import allBenefitsByYears from '../data/allBenefitsByYears'
+import { allBenefitsByYears, allDelayedBenefitsByYears } from '../data/allBenefitsByYears'
 // React doesn't like Coffeescript
 // const urllib = require('urllib')
 
-// const getBenefitsHtml = year => {
+// const getBenefitsHtml = (year, delayed = false) => {
 //   return new Promise((resolve, reject) => {
-//     urllib.request(`https://www.ssa.gov/benefits/retirement/planner/${year}.html`)
+//     urllib.request(`https://www.ssa.gov/benefits/retirement/planner/${delayed ? year + "-delay" : year}.html`)
 //       .then(result => (resolve(result.data.toString())))
 //   })
 // }
 
-export const getBenefitsTables = data => {
+const getBenefitsTables = data => {
   const tableStart = data.search(/\<tbody\>/);
-  const tableEnd = data.search(/\<\/tbody\>/);
+  const tableEnd = data.search(/\<td colspan/);
   const tableRows = data.slice(tableStart, tableEnd).split("<tr>").slice(1, -1).map(row => row.match(/(?<=\<td\>).+(?=\<\/td>)/g));
-  const tableRowsByMonths = tableRows.map((row, i) =>
-    [row[0].search(/\+/) !== -1 ? (parseInt(row[0].split(" + ")[0]) * 12) + parseInt(row[0].split(" + ")[1]) : parseInt(row[0]) * 12, row[1], row[2]])
+  const tableRowsByMonths = tableRows.map((row, i) => (
+    row.length > 2 ?
+      [row[0].search(/\+/) !== -1 ? (parseInt(row[0].split(" + ")[0]) * 12) + parseInt(row[0].split(" + ")[1])
+        : parseInt(row[0]) * 12, row[1], row[2]]
+      :
+      [row[0].search(/\+/) !== -1 ? (parseInt(row[0].split(" + ")[0]) * 12) + parseInt(row[0].split(" + ")[1])
+        : parseInt(row[0]) * 12, row[1]])
+  )
   return { yearsMonths: tableRows, months: tableRowsByMonths }
 }
 
-// const getBenefitsTablesByYears = () => {
-//   return new Promise((resolve, reject) => {
-//     const applicableYears = [
-//       '1943',
-//       '1955',
-//       '1956',
-//       '1957',
-//       '1958',
-//       '1959',
-//       '1960'
-//     ]
-//     const tablesByYears = {}
+// const getBenefitsTablesByYears = (delayed = false) => {
+//   const applicableYears = [
+//     '1943',
+//     '1955',
+//     '1956',
+//     '1957',
+//     '1958',
+//     '1959',
+//     '1960'
+//   ]
+//   const tablesByYears = {}
 
-//       for (let year of applicableYears) {
-//         setTimeout(() => {
-//           getBenefitsHtml(year)
-//             .then(res => console.log(JSON.stringify({year: year, data: getBenefitsTables(res)})))
-//         }, 2000)
-//       }
-//       resolve(tablesByYears)
-//   })
+//   for (let year of applicableYears) {
+//     setTimeout(() => {
+//       getBenefitsHtml(year, delayed)
+//         .then(res => console.log(JSON.stringify({ year: year, data: getBenefitsTables(res) })))
+//     }, 2000)
+//   }
 // }
 
 export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBenefit = 1000) => {
@@ -70,10 +73,12 @@ export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBen
   adjustedSpouseMonthlyBenefit = spouseReductionPercent * monthlyBenefit
   maxBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge / 12)))
   maxSpouseBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge / 12)))
+
   for (let i = 0; i < maxBenefitsByYears.length; i++) {
     maxBenefitsByYears[i] = i * 12 * adjustedMonthlyBenefit + firstYearBenefits
     maxSpouseBenefitsByYears[i] = i * 12 * adjustedSpouseMonthlyBenefit + firstYearSpouseBenefits
   }
+
   return { ageYearsMonths, wageEarner: maxBenefitsByYears, spouse: maxSpouseBenefitsByYears }
 }
 
@@ -100,8 +105,7 @@ const getBenefitReductions = benefitsTables => {
 
 const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000) => {
   const benefitsReductions = getBenefitReductions(getBenefitsByYear(allBenefitsByYears, birthYear))
-  const benefitsRange = maxAge * 12 - 744
-  // const fullBenefitsAge = benefitsReductions.applicableMonths[benefitsReductions.applicableMonths.length - 1]
+  const benefitsRange = maxAge * 12 - 744 // Expected lifespan over n months beginning at age 62
   const earningsByStartAge = {}
   let reductionPercent
   let adjustedMonthlyBenefit
@@ -137,7 +141,7 @@ const parseDollarAmount = amount => {
 
 // console.log(parseDollarAmount(666666))
 // console.log(getBenefitReductionsByYear(allBenefitsByYears, 1965))
-console.log(getMaxBenefits(1943, 85))
+// console.log(getMaxBenefits(1960, 78))
 
 const somePrices = []
 for (let i = 0; i < 90 - 62; i++) {
