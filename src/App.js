@@ -1,23 +1,38 @@
-import logo from './logo.svg';
+import { useState, useEffect } from 'react';
+import { getBenefitsByMaxAge } from './helpers/benefitsGetter'
+import allBenefitsByYears from './data/allBenefitsByYears'
 import './App.css';
 
-function App() {
+const Benefits = ({ benefits, monthlyBenefit }) => {
+  const benefitsTable = getBenefitsByMaxAge(benefits.data, 745, 85, monthlyBenefit)
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      <h2>{benefits.year}</h2> From age {benefitsTable.ageYearsMonths} to 85, assuming ${monthlyBenefit}/mo
+      <div className="benefits-container">
+        <div className="benefits-item">
+          <h4>Wage earner benefits</h4>
+          {benefitsTable.wageEarner.map((amount, i) => {
+            return <li>Year {i + 1}: {amount}</li>
+          })}
+        </div>
+        <div className="benefits-item">
+          <h4>Spouse benefits</h4>
+          {benefitsTable.spouse.map((amount, i) => {
+            return <li>Year {i + 1}: {amount}</li>
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const App = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {allBenefitsByYears.map(row => {
+        return <Benefits benefits={row} monthlyBenefit={1000} />
+      })}
     </div>
   );
 }
