@@ -42,34 +42,46 @@ export const getBenefitsTables = data => {
 // }
 
 export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBenefit = 1000) => {
+  let ageMonths
   let ageYearsMonths
   let reductionPercent
   let spouseReductionPercent
   let adjustedMonthlyBenefit
   let adjustedSpouseMonthlyBenefit
+  let firstYearOffset
+  let firstYearBenefits
+  let firstYearSpouseBenefits
   let maxBenefitsByYears
   let maxSpouseBenefitsByYears
 
   for (let i = 0; i < benefitsTables.months.length; i++) {
     if (benefitsTables.months[i][0] === startAge) {
-      reductionPercent = parseFloat(benefitsTables.months[i][1])
-      spouseReductionPercent = parseFloat(benefitsTables.months[i][2])
+      reductionPercent = parseFloat(benefitsTables.months[i][1]) / 100
+      spouseReductionPercent = parseFloat(benefitsTables.months[i][2]) / 100
       ageYearsMonths = benefitsTables.yearsMonths[i][0]
+      ageMonths = benefitsTables.months[i][0]
+      firstYearOffset = ageYearsMonths.search(/\+/) !== -1 ? 12 - parseInt(ageYearsMonths.split(" + ")[1]) : 12
     }
   }
 
-  adjustedMonthlyBenefit = reductionPercent/100 * monthlyBenefit
-  adjustedSpouseMonthlyBenefit = spouseReductionPercent/100 * monthlyBenefit
-  maxBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge/12))).map((_, i) => parseInt((i + 1) * 12 * adjustedMonthlyBenefit))
-  maxSpouseBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge/12))).map((_, i) => parseInt((i + 1) * 12 * adjustedSpouseMonthlyBenefit))
+  firstYearBenefits = firstYearOffset * monthlyBenefit * reductionPercent
+  firstYearSpouseBenefits = firstYearOffset * monthlyBenefit * spouseReductionPercent
+  adjustedMonthlyBenefit = reductionPercent * monthlyBenefit
+  adjustedSpouseMonthlyBenefit = spouseReductionPercent * monthlyBenefit
+  maxBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge / 12)))
+  maxSpouseBenefitsByYears = Array.apply(null, Array(maxAge - Math.floor(startAge / 12)))
+  for (let i = 0; i < maxBenefitsByYears.length; i++) {
+    maxBenefitsByYears[i] = i * 12 * adjustedMonthlyBenefit + firstYearBenefits
+    maxSpouseBenefitsByYears[i] = i * 12 * adjustedSpouseMonthlyBenefit + firstYearSpouseBenefits
+  }
   return { ageYearsMonths, wageEarner: maxBenefitsByYears, spouse: maxSpouseBenefitsByYears }
 }
 
 const getBenefitsByYear = (allBenefitsByYears, birthYear) => {
-  let year = birthYear >= 1943 && birthYear <= 1954 ? 1943 
+  let year = birthYear >= 1943 && birthYear <= 1954 ? 1943
     : birthYear >= 1960 ? 1960
       : birthYear
-  
+
   for (let i = 0; i < allBenefitsByYears.length; i++) {
     if (allBenefitsByYears[i].year === year.toString()) return allBenefitsByYears[i]
   }
@@ -77,27 +89,29 @@ const getBenefitsByYear = (allBenefitsByYears, birthYear) => {
 
 const getBenefitReductions = benefitsTables => {
   const reductions = {}
-  reductions.percentages =  Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
+  reductions.percentages = Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
     parseFloat(benefitsTables.data.months[i][1]))
-  reductions.applicableMonths =  Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
+  reductions.applicableMonths = Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
     benefitsTables.data.months[i][0])
-  reductions.applicableYearsMonths =  Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
+  reductions.applicableYearsMonths = Array.apply(null, Array(benefitsTables.data.months.length)).map((_, i) =>
     benefitsTables.data.yearsMonths[i][0])
   return reductions
 }
 
 const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000) => {
   const benefitsReductions = getBenefitReductions(getBenefitsByYear(allBenefitsByYears, birthYear))
-  const benefitsRange = maxAge*12 - 744
-  const fullBenefitsAge = benefitsReductions.applicableMonths[benefitsReductions.applicableMonths.length - 1]
+  const benefitsRange = maxAge * 12 - 744
+  // const fullBenefitsAge = benefitsReductions.applicableMonths[benefitsReductions.applicableMonths.length - 1]
   const earningsByStartAge = {}
   let reductionPercent
-  let earnings
+  let adjustedMonthlyBenefit
+  let totalEarnings
 
   for (let i = 0; i < benefitsReductions.percentages.length; i++) {
-    reductionPercent = benefitsReductions.percentages[i]/100
-    earnings =  monthlyBenefit * reductionPercent * (benefitsRange - i)
-    earningsByStartAge[benefitsReductions.applicableYearsMonths[i]] = earnings
+    reductionPercent = benefitsReductions.percentages[i] / 100
+    adjustedMonthlyBenefit = reductionPercent * monthlyBenefit
+    totalEarnings = adjustedMonthlyBenefit * (benefitsRange - i)
+    earningsByStartAge[benefitsReductions.applicableYearsMonths[i]] = totalEarnings
   }
 
   return earningsByStartAge
@@ -123,7 +137,7 @@ const parseDollarAmount = amount => {
 
 // console.log(parseDollarAmount(666666))
 // console.log(getBenefitReductionsByYear(allBenefitsByYears, 1965))
-console.log(getMaxBenefits(1960, 85))
+console.log(getMaxBenefits(1943, 85))
 
 const somePrices = []
 for (let i = 0; i < 90 - 62; i++) {
