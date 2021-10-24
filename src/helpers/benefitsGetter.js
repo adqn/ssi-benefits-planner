@@ -45,7 +45,6 @@ const getBenefitsTables = data => {
 // }
 
 export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBenefit = 1000) => {
-  let ageMonths
   let ageYearsMonths
   let reductionPercent
   let spouseReductionPercent
@@ -62,7 +61,6 @@ export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBen
       reductionPercent = parseFloat(benefitsTables.months[i][1]) / 100
       spouseReductionPercent = parseFloat(benefitsTables.months[i][2]) / 100
       ageYearsMonths = benefitsTables.yearsMonths[i][0]
-      ageMonths = benefitsTables.months[i][0]
       firstYearOffset = ageYearsMonths.search(/\+/) !== -1 ? 12 - parseInt(ageYearsMonths.split(" + ")[1]) : 12
     }
   }
@@ -141,9 +139,15 @@ const parseDollarAmount = amount => {
 
 // console.log(parseDollarAmount(666666))
 // console.log(getBenefitReductionsByYear(allBenefitsByYears, 1965))
-// console.log(getMaxBenefits(1960, 78))
+// console.log(getMaxBenefits(1960, 85))
 
-const somePrices = []
-for (let i = 0; i < 90 - 62; i++) {
-
+const someEarnings = {}
+for (let i = 0; i <= 20; i++) {
+  let maxBenefitsToAge = getMaxBenefits(1960, 70 + i)
+  let ageYearsMonths = Object.keys(maxBenefitsToAge)
+  let earningsByEndAge = Object.values(maxBenefitsToAge)
+  let maxEarningsByEndAge = Math.max(...earningsByEndAge)
+  someEarnings[70 + i] = maxEarningsByEndAge
 }
+
+console.log(someEarnings)

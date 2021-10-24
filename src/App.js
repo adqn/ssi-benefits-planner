@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getBenefitsByMaxAge } from './helpers/benefitsGetter'
 import { allBenefitsByYears, allDelayedBenefitsByYears } from './data/allBenefitsByYears'
+import BenefitsGraph from './Components/BenefitsGraph'
 import './App.css';
 
 const Benefits = ({ benefits, monthlyBenefit }) => {
-  const benefitsTable = getBenefitsByMaxAge(benefits.data, 744, 85, monthlyBenefit)
+  const benefitsTable = getBenefitsByMaxAge(benefits.data, 745, 85, monthlyBenefit)
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -27,12 +28,20 @@ const Benefits = ({ benefits, monthlyBenefit }) => {
   )
 }
 
+const MaxBenefitsToEndAge = ({ }) => {
+  return (
+    <div>
+    </div>
+  )
+}
+
 const App = () => {
   return (
     <div className="App">
-      {allBenefitsByYears.map(row => {
+      <BenefitsGraph />
+      {/* {allBenefitsByYears.map(row => {
         return <Benefits benefits={row} monthlyBenefit={1000} />
-      })}
+      })} */}
     </div>
   );
 }
