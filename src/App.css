@@ -12,3 +12,33 @@
   text-align: center;
   padding-left: 15px;
 }
+
+#pointBorder {
+  fill: grey;
+}
+
+#outerPoint {
+  fill: white;
+  border: 1px solid black;
+  text-shadow: 9px 10px 5px #888888;
+}
+
+.line1 {
+  stroke: lightgrey;
+  stroke-width: 3
+}
+
+.line2 {
+  stroke: lightgrey;
+  stroke-width: 3
+}
+
+.line3 {
+  stroke: lightgrey;
+  stroke-width: 3
+}
+
+.line4 {
+  stroke: lightgrey;
+  stroke-width: 3
+}

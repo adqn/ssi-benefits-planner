@@ -101,10 +101,10 @@ const getBenefitReductions = benefitsTables => {
   return reductions
 }
 
-const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000) => {
-  const benefitsReductions = getBenefitReductions(getBenefitsByYear(allBenefitsByYears, birthYear))
-  const benefitsRange = maxAge * 12 - 744 // Expected lifespan over n months beginning at age 62
-  const earningsByStartAge = {}
+export const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000, delayed = false) => {
+  const benefitsReductions = getBenefitReductions(getBenefitsByYear(delayed ? allDelayedBenefitsByYears : allBenefitsByYears, birthYear))
+  const benefitsRange = delayed ? maxAge * 12  - 792 : maxAge * 12 - 744 // Expected lifespan over n months beginning at age 62
+  const earningsByStartAge = []
   let reductionPercent
   let adjustedMonthlyBenefit
   let totalEarnings
@@ -113,41 +113,25 @@ const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000) => {
     reductionPercent = benefitsReductions.percentages[i] / 100
     adjustedMonthlyBenefit = reductionPercent * monthlyBenefit
     totalEarnings = adjustedMonthlyBenefit * (benefitsRange - i)
-    earningsByStartAge[benefitsReductions.applicableYearsMonths[i]] = totalEarnings
+    // earningsByStartAge[benefitsReductions.applicableYearsMonths[i]] = totalEarnings
+    earningsByStartAge.push({
+      age: benefitsReductions.applicableYearsMonths[i],
+      earnings: totalEarnings
+    })
   }
 
   return earningsByStartAge
 }
 
-const parseDollarAmount = amount => {
-  let dollarString = amount.toString()
-  let temp
-  let numCommas
-
-  if (dollarString.length > 3) {
-    numCommas = dollarString.length % 3 === 0 ? Math.floor(dollarString.length / 3) - 1 : Math.floor(dollarString.length / 3)
-    temp = dollarString.slice(0, dollarString.length - (numCommas * 3))
-    console.log("start ", temp)
-    for (let i = numCommas; i >= 1; i--) {
-      temp += "," + dollarString.slice(temp.length - 1 - (numCommas + 1 - i), dollarString.length - (i * 3))
-      console.log(temp)
-    }
-  }
-
-  return "$" + temp
-}
-
-// console.log(parseDollarAmount(666666))
 // console.log(getBenefitReductionsByYear(allBenefitsByYears, 1965))
-// console.log(getMaxBenefits(1960, 85))
+console.log(getMaxBenefits(1960, 78))
+console.log(getMaxBenefits(1960, 90, 1000, true))
 
 const someEarnings = {}
 for (let i = 0; i <= 20; i++) {
-  let maxBenefitsToAge = getMaxBenefits(1960, 70 + i)
+  let maxBenefitsToAge = getMaxBenefits(1960, 78 + i)
   let ageYearsMonths = Object.keys(maxBenefitsToAge)
   let earningsByEndAge = Object.values(maxBenefitsToAge)
   let maxEarningsByEndAge = Math.max(...earningsByEndAge)
   someEarnings[70 + i] = maxEarningsByEndAge
 }
-
-console.log(someEarnings)
