@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/ssi-benefits-planner/precache-manifest.98184278433054876ffd0243399be041.js"
+  "/ssi-benefits-planner/precache-manifest.7aea6d68f9c23bd44daaae869fd0e54a.js"
 );
 
 self.addEventListener('message', (event) => {
