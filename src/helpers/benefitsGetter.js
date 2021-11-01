@@ -44,10 +44,16 @@ const getBenefitsTables = data => {
 //   }
 // }
 
-export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyBenefit = 1000) => {
+const getMonthlyBenefit = () => {
+
+}
+
+export const getBenefitsByMaxAge = (benefitsTables, startAge, maxAge, monthlyWage = 1000) => {
   let ageYearsMonths
   let reductionPercent
   let spouseReductionPercent
+  let monthlyBenefit = 1000
+  // let monthlyBenefit = monthlyWage + 794 - (monthlyWage - 20 - 65)/2
   let adjustedMonthlyBenefit
   let adjustedSpouseMonthlyBenefit
   let firstYearOffset
@@ -101,11 +107,13 @@ const getBenefitReductions = benefitsTables => {
   return reductions
 }
 
-export const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000, delayed = false) => {
+export const getMaxBenefits = (birthYear, maxAge, monthlyWage = 1000, delayed = false) => {
   const benefitsReductions = getBenefitReductions(getBenefitsByYear(delayed ? allDelayedBenefitsByYears : allBenefitsByYears, birthYear))
   const benefitsRange = delayed ? maxAge * 12  - 792 : maxAge * 12 - 744 // Expected lifespan over n months beginning at age 62
   const earningsByStartAge = []
   let reductionPercent
+  let monthlyBenefit = 1000
+  // let monthlyBenefit = monthlyWage + 794 - (monthlyWage - 20 - 65)/2
   let adjustedMonthlyBenefit
   let totalEarnings
 
@@ -113,7 +121,6 @@ export const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000, delayed
     reductionPercent = benefitsReductions.percentages[i] / 100
     adjustedMonthlyBenefit = reductionPercent * monthlyBenefit
     totalEarnings = adjustedMonthlyBenefit * (benefitsRange - i)
-    // earningsByStartAge[benefitsReductions.applicableYearsMonths[i]] = totalEarnings
     earningsByStartAge.push({
       age: benefitsReductions.applicableYearsMonths[i],
       earnings: totalEarnings
@@ -121,17 +128,4 @@ export const getMaxBenefits = (birthYear, maxAge, monthlyBenefit = 1000, delayed
   }
 
   return earningsByStartAge
-}
-
-// console.log(getBenefitReductionsByYear(allBenefitsByYears, 1965))
-console.log(getMaxBenefits(1960, 78))
-console.log(getMaxBenefits(1960, 90, 1000, true))
-
-const someEarnings = {}
-for (let i = 0; i <= 20; i++) {
-  let maxBenefitsToAge = getMaxBenefits(1960, 78 + i)
-  let ageYearsMonths = Object.keys(maxBenefitsToAge)
-  let earningsByEndAge = Object.values(maxBenefitsToAge)
-  let maxEarningsByEndAge = Math.max(...earningsByEndAge)
-  someEarnings[70 + i] = maxEarningsByEndAge
 }

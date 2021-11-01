@@ -3,9 +3,10 @@ import styled from 'styled-components'
 
 const SliderContainer = styled.div`
   display: flex;
+  margin: 0 auto;
   flex-direction: row;
   width: ${props => props.width ? props.width + 60 + "px" : "200px"};
-  // border: 1px solid black;
+  color: rgb(228, 228, 228);
 `
 
 const RangeSlider = ({setParentValue, range, visibleRange}) => {

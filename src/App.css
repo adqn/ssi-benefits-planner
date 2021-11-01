@@ -1,16 +1,55 @@
 .App {
 }
 
-.benefits-container {
-  display: flex;
-  justify-content: center;
-  /* flex-direction: column; */
+svg {
+  background: rgb(36, 36, 36);
 }
 
-.benefits-item {
-  flex-direction: column;
-  text-align: center;
-  padding-left: 15px;
+.RangeSlider {
+}
+
+.grid {
+  stroke-width: 1px;
+  opacity: .7;
+  color: rgb(228, 228, 228);
+  stroke: rgb(228, 228, 228);
+}
+
+.titleText {
+  fill: rgb(228, 228, 228);
+}
+
+.yScale {
+  stroke-width: 1px;
+  color: rgb(228, 228, 228);
+}
+
+.xScale {
+  stroke-width: 1px;
+  color: rgb(228, 228, 228);
+}
+
+.xAxisAge {
+  fill: rgb(228, 228, 228);
+}
+
+.pointText {
+  fill: rgb(228, 228, 228);
+  text-shadow: -1px -1px 0 rgb(36, 36, 36), 1px -1px 0 rgb(36, 36, 36), -1px 1px 0 rgb(36, 36, 36), 1px 1px 0 rgb(36, 36, 36);
+}
+
+.selectedAge {
+  font-size: 11pt;
+  fill: rgb(228, 228, 228);
+}
+
+.scatterLine {
+  stroke: rgb(228, 228, 228);
+  stroke-width: 2px;
+}
+
+.scatterDot {
+  fill: white;
 }
 
 #pointBorder {
@@ -20,7 +59,6 @@
 #outerPoint {
   fill: white;
   border: 1px solid black;
-  text-shadow: 9px 10px 5px #888888;
 }
 
 .line1 {
