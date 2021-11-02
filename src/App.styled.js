@@ -2,18 +2,18 @@ import styled from 'styled-components'
 
 export const DocumentContainer = styled.div`
   height: 100%;
-  width: 80%;
-  min-width: fit-content;
+  width: 900px;
   margin: 0 auto;
-  // margin-top: 10px;
-  // margin-bottom: 10px;
-  // padding-top: 10px;
-  // padding-bottom: 10px;
   padding: 10px;
-  // border-radius: 3px;
-  // background: #525252;
   text-align: center;
   background: white;
+`
+
+export const TextContainer = styled.div`
+  margin: 0 auto;
+  text-align: left;
+  width: 700px;
+  padding: 10px;
 `
 
 export const GraphContainer = styled.div`

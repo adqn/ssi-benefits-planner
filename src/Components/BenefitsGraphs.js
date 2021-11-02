@@ -7,9 +7,9 @@ import '../App.css'
 
 const marginLeft = 70
 
-export const LineGraph = () => {
+export const LineGraph = (props) => {
   const [age, setAge] = useState(0)
-  const [monthlyWage, setMonthlyWage] = useState(1000)
+  const [monthlyBenefit, setMonthlyBenefit] = useState(props.monthlyBenefit ?? 1000)
   const marginTop = 40
   const width = 800
   const height = 250
@@ -18,8 +18,12 @@ export const LineGraph = () => {
   const xStartAge = xBelowFullAge - 100
   const xAboveFullAge = xFullAge + 100
   const xMaxAge = xAboveFullAge + 100
-  const monthlyData = allBenefitsByYears[0].data
-  const monthlyDataDelayed = allDelayedBenefitsByYears[0].data
+  const monthlyData = allBenefitsByYears.find(row => row.year === props.birthYear).data
+  const monthlyDataDelayed = allDelayedBenefitsByYears.find(row => row.year === props.birthYear).data
+  const startAgeYearsMonths = monthlyData.yearsMonths[0][0]
+  const startAgeMonths = monthlyData.months[0][0]
+  const fullAgeYearsMonths = monthlyData.yearsMonths[monthlyData.yearsMonths.length - 1][0]
+  const fullAgeMonths = monthlyData.months[monthlyData.months.length - 1][0]
   const applicableAges = Array.apply(null, Array(monthlyData.months.length)).map((_, i) =>
   ({
     yearsMonths: monthlyData.yearsMonths[i][0],
@@ -38,12 +42,12 @@ export const LineGraph = () => {
     {
       yearsMonths: allApplicableAges[i].yearsMonths,
       months: allApplicableAges[i].months,
-      // amount: (monthlyWage + 794 - (monthlyWage - 20 - 65)/2) * allApplicableAges[i].benefitPercent / 100
-      amount: monthlyWage * allApplicableAges[i].benefitPercent / 100
+      // amount: (monthlyBenefit + 794 - (monthlyBenefit - 20 - 65)/2) * allApplicableAges[i].benefitPercent / 100
+      amount: monthlyBenefit * allApplicableAges[i].benefitPercent / 100
     }
   ))
   const yScale = d3.scaleLinear()
-    .domain([500, monthlyBenefitAmounts[monthlyBenefitAmounts.length - 1].amount])
+    .domain([500, monthlyBenefitAmounts[monthlyBenefitAmounts.length - 1].amount + 100])
     .range([height, 0])
   const xScaleMain = d3.scalePoint()
     // .domain([0, 62, 67, 70])
@@ -54,19 +58,19 @@ export const LineGraph = () => {
 
   function getXPos(d) {
     return (
-      parseInt(d.yearsMonths) < 67 ?
-        d.yearsMonths === "62" ? xStartAge : xBelowFullAge :
-        d.yearsMonths === "67" ? xFullAge :
-          parseInt(d.yearsMonths) === 70 ? xMaxAge : xAboveFullAge
+      d.months < fullAgeMonths ?
+        d.yearsMonths === startAgeYearsMonths ? xStartAge : xBelowFullAge :
+        d.months === fullAgeMonths ? xFullAge :
+          d.months === 840 ? xMaxAge : xAboveFullAge
     )
   }
 
   function getPointIds(d) {
     return (
-      parseInt(d.yearsMonths) < 67 ?
-        d.yearsMonths === "62" ? "startAge" : "belowFullAge" :
-        d.yearsMonths === "67" ? "fullAge" :
-          parseInt(d.yearsMonths) === 70 ? "maxAge" : "aboveFullAge"
+      d.months < fullAgeMonths ?
+        d.months === startAgeMonths ? "startAge" : "belowFullAge" :
+        d.months === fullAgeMonths ? "fullAge" :
+          d.months === 840 ? "maxAge" : "aboveFullAge"
     )
   }
 
@@ -80,9 +84,9 @@ export const LineGraph = () => {
       .attr('dy', '16')
       .attr('text-anchor', 'middle')
       .text(() => {
-        return d.yearsMonths === "62" ? null :
-          d.yearsMonths === "67" ? null :
-            d.yearsMonths === "70 or later" ? null :
+        return d.yearsMonths === startAgeYearsMonths ? null :
+          d.months === fullAgeMonths ? null :
+            d.months === 840 ? null :
               d.yearsMonths
       })
   }
@@ -128,9 +132,6 @@ export const LineGraph = () => {
         .tickSizeOuter(0)
         .tickFormat('')
         .tickValues([700, 900, 1100, 1300]))
-    d3.select('.grid')
-      // .style('color', 'lightgrey')
-      .attr('stroke-width', 1)
     const yAxis = d3.axisLeft()
       .scale(yScale)
       .tickFormat(d3.format("$,"))
@@ -180,21 +181,24 @@ export const LineGraph = () => {
 
     chart.append('text')
       .attr('class', 'xAxisAge')
-      .attr('transform', `translate(${xStartAge - 9}, ${height + marginTop})`)
+      .attr('transform', `translate(${xStartAge}, ${height + marginTop})`)
       .attr('font-size', '15')
       .attr('dy', '16')
-      .text("62")
+      .attr('text-anchor', 'middle')
+      .text(startAgeYearsMonths)
     chart.append('text')
       .attr('class', 'xAxisAge')
-      .attr('transform', `translate(${xFullAge - 9}, ${height + marginTop})`)
+      .attr('transform', `translate(${xFullAge}, ${height + marginTop})`)
       .attr('font-size', '15')
       .attr('dy', '16')
-      .text("67")
+      .attr('text-anchor', 'middle')
+      .text(fullAgeYearsMonths)
     chart.append('text')
       .attr('class', 'xAxisAge')
-      .attr('transform', `translate(${xMaxAge - 30}, ${height + marginTop})`)
+      .attr('transform', `translate(${xMaxAge}, ${height + marginTop})`)
       .attr('font-size', '15')
       .attr('dy', '16')
+      .attr('text-anchor', 'middle')
       .text("70 or later")
     svg.append('text')
       .attr('x', height / 2 + marginTop - 10)
@@ -238,10 +242,10 @@ export const LineGraph = () => {
     d3.selectAll('.point')
       .style('opacity', d => {
         return (
-          d.yearsMonths === "62" ? 1 :
-            d.yearsMonths === "67" ? 1 :
-              parseInt(d.yearsMonths) === 70 ? 1 :
-                d.yearsMonths === allApplicableAges[age].yearsMonths ? 1 : 0
+          d.months === startAgeMonths ? 1 :
+            d.yearsMonths === fullAgeYearsMonths ? 1 :
+              d.months === 840 ? 1 :
+                d.months === allApplicableAges[age].months ? 1 : 0
         )
       })
       .each(d => {
@@ -276,10 +280,10 @@ export const LineGraph = () => {
   )
 }
 
-export const OptimalAgeGraph = () => {
-  const [birthYear, setBirthYear] = useState(1960)
+export const MaxAgeGraph = (props) => {
+  const [birthYear, setBirthYear] = useState(props.birthYear)
   const [maxAge, setMaxAge] = useState(0)
-  const [monthlyWage, setMonthlyWage] = useState(1000)
+  const [monthlyBenefit, setMonthlyWage] = useState(1000)
   const marginTop = 50
   const height = 500
   const yHeight = height * .67
@@ -307,7 +311,7 @@ export const OptimalAgeGraph = () => {
 
     chart.append('text')
       .attr('class', 'titleText')
-      .text(`Max age ${parseInt(maxAge) + 70}`)
+      .text(`Total amount received up to age ${parseInt(maxAge) + 70}`)
       .attr('y', marginTop - 10)
       .attr('x', marginLeft + width / 2)
       .attr('text-anchor', 'middle')
@@ -364,8 +368,8 @@ export const OptimalAgeGraph = () => {
   )
 }
 
-export const DelayedOptimalAgeGraph = () => {
-  const [birthYear, setBirthYear] = useState(1960)
+export const DelayedMaxAgeGraph = (props) => {
+  const [birthYear, setBirthYear] = useState(props.birthYear)
   const [maxAge, setMaxAge] = useState(0)
   const [monthlyAmount, setMonthlyAmount] = useState(1000)
   const marginTop = 50
@@ -395,7 +399,7 @@ export const DelayedOptimalAgeGraph = () => {
 
     svg.append('text')
       .attr("class", "titleText")
-      .text(`Max age ${parseInt(maxAge) + 70}`)
+      .text(`Total amount received up to age ${parseInt(maxAge) + 70}`)
       .attr('y', marginTop - 10)
       .attr('x', marginLeft + width / 2)
       .attr('text-anchor', 'middle')
