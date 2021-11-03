@@ -5,6 +5,7 @@ export const DocumentContainer = styled.div`
   width: 900px;
   margin: 0 auto;
   padding: 10px;
+  padding-bottom: 20px;
   text-align: center;
   background: white;
 `
