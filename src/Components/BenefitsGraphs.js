@@ -104,7 +104,7 @@ export const LineGraph = (props) => {
               x = point.attr('transform').match(/\d+\.?\d+/g)[0]
             }
           })
-        return x ? x : d3.select(defaultPoint).attr('transform').match(/\d+\.?\d+/g)[0]
+        return x || d3.select(defaultPoint).attr('transform').match(/\d+\.?\d+/g)[0]
       })
       .attr('y2', () => {
         let y
@@ -115,7 +115,7 @@ export const LineGraph = (props) => {
               y = point.attr('transform').match(/\d+\.?\d+/g)[1]
             }
           })
-        return y ? y : d3.select(defaultPoint).attr('transform').match(/\d+\.?\d+/g)[1]
+        return y || d3.select(defaultPoint).attr('transform').match(/\d+\.?\d+/g)[1]
       })
   }
 
